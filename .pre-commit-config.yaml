@@ -56,3 +56,12 @@ repos:
         name: mypy
         description: Optional Static Typing for Python
         files: \.py$
+
+  - repo: local
+    hooks:
+      - id: pytest-check
+        name: pytest-check
+        entry: pytest
+        language: system
+        pass_filenames: false
+        always_run: true

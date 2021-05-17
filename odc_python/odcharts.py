@@ -1,6 +1,6 @@
 import datetime as dt
 import time
-from typing import List
+from typing import List, Optional
 
 import dateutil.relativedelta as rt
 import numpy as np
@@ -15,7 +15,7 @@ class ODCharts:
     def __init__(self) -> None:
         pass
 
-    def get_single_charts(self, date: dt.date) -> pd.DataFrame:
+    def get_single_charts(self, date: Optional[dt.date] = None) -> pd.DataFrame:
         """Returns the top 100 single charts a pandas dataframe for the given date.
 
         Args:
@@ -29,7 +29,7 @@ class ODCharts:
         span_class_names = ["this-week", "last-week", "info-artist", "info-title", "info-label"]
         return self._get_chart_df(url, span_class_names)
 
-    def get_album_charts(self, date: dt.date) -> pd.DataFrame:
+    def get_album_charts(self, date: Optional[dt.date]) -> pd.DataFrame:
         """Returns the top 100 album charts a pandas dataframe for the given date.
 
         Args:
@@ -43,7 +43,7 @@ class ODCharts:
         span_class_names = ["this-week", "last-week", "info-artist", "info-title", "info-label"]
         return self._get_chart_df(url, span_class_names)
 
-    def get_dance_charts(self, date: dt.date) -> pd.DataFrame:
+    def get_dance_charts(self, date: Optional[dt.date]) -> pd.DataFrame:
         """Returns the top 100 dance charts a pandas dataframe for the given date.
 
         Args:
@@ -85,14 +85,15 @@ class ODCharts:
         span_class_names = ["this-week", "info-artist", "info-title"]
         return self._get_chart_df(url, span_class_names)
 
-    def _get_timestamp(self, date: dt.date) -> str:
+    def _get_timestamp(self, date: Optional[dt.date]) -> str:
+        date = date if date is not None else dt.date.today()
         next_thursday = date + rt.relativedelta(days=0, weekday=rt.TH)
         timestamp = int(time.mktime(next_thursday.timetuple()))
         return str(timestamp).ljust(13, "0")
 
     def _get_chart_df(self, url: str, span_class_names: List[str]) -> pd.DataFrame:
         r = requests.get(url)
-        soup = BeautifulSoup(r.text)
+        soup = BeautifulSoup(r.text, features="html.parser")
 
         charts_df = pd.DataFrame()
         chart_items = soup.find("table", attrs={"class": "table chart-table"}).find_all("tr")
